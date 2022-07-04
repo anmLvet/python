@@ -1,0 +1,12 @@
+XOrg
+sublime
+libreoffice
+savscand
+telegram
+skype
+sql
+evince
+code
+opera
+chrome
+firefox
