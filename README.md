@@ -21,3 +21,5 @@ TODO:
 - do actual match of process IDs between smem output and Firefox memory dump. Determine, if the memory dump was from a different session and tell as much
 - Parse Firefox's JSON output
 - Try to make more meaningful output when run without parameters for different systems
+
+N2
