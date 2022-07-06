@@ -22,4 +22,4 @@ TODO:
 - Parse Firefox's JSON output
 - Try to make more meaningful output when run without parameters for different systems
 
-N2
+
