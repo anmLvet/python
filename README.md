@@ -1,6 +1,6 @@
-# Python scripts
+# Scripts
 
-A collection of useful python scripts. 
+A collection of useful python, perl and R scripts. 
 
 **mem-usage.py** - script, that shows summaries of resident memory usage by different applications plus some other info on Linux systems. Script uses output of smem utility, particularly PSS column, which estimates "real" resident memory usage per process as sum of actual resident memory of a process and estimated share of resident memory, used by shared libs. The script then sums them per application. Additional info is shown for Chrome and Firefox.
 
