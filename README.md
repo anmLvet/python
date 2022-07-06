@@ -23,3 +23,8 @@ TODO:
 - Try to make more meaningful output when run without parameters for different systems
 
 
+**rolldice.py** - implements a random reward model to control dopamine levels during multi-step work. After completing each stage of work (e.g., completing the pomodoro cycle), you run the script to roll a dice to determine if a reward should be received. The reward can only be obtained if the maximum value is rolled.
+
+The dice progression starts at D20. After each unsuccessful roll, it goes down to D12, D10 and then to D4, which will be the minimum dice value until a successful roll. On a successful roll, the progression restarts at D20. You can set your own dice progression by editing dice tuple in the script.
+
+The script saves roll state into a shelf in *~/bin/rolldice.db*. 
