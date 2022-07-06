@@ -28,19 +28,37 @@ def print_sum(app):
 
     app = f"[{app[0].upper()}{app[0].lower()}]{app[1:]}"
     cmd = f"smem -P {app}" + "| awk '{print $6;}' | awk '{ sum += $1 } END { "\
-          + f"printf(\" {app_name}total by smem:" + " %\\047d\\n\",sum) }'"
-    os.system(cmd)
+          + "print(sum) }'"
+    app_total_str = os.popen(cmd).read()
+    try:
+        app_total = int(app_total_str)
+        print(f" {app_name}total by smem: {app_total:,d}")
+        return app_total
+    except ValueError:
+        print(f" {app_name}total by smem: {app_total_str}")
+        return 0
 
 
-os.system("smem | awk '{print $6;}' | awk '{ sum += $1 } END { "
-          + "printf(\" All      total by smem: %\\047d\\n\",sum) }'")
+all_total_str = os.popen("smem | awk '{print $6;}' | awk '{ sum += $1 } END { "
+                         + "print(sum) }'").read()
+try:
+    all_total = int(all_total_str)
+    print(f" All      total by smem: {all_total:,d}")
+except ValueError:
+    all_total = 0
+    print(f" All      total by smem: {all_total_str}")
+
+found_total = 0
 
 if (not os.path.isfile(args.proc_names)):
     print("File with app list not found. Default output only.")
 else:
     with open(args.proc_names) as f:
         for app_line in f:
-            print_sum(app_line)
+            found_total = found_total + print_sum(app_line)
+
+if (all_total > 0 and found_total > 0):
+    print(f" Other apps            : {all_total - found_total:,d}")
 
 # Chrome
 

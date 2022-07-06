@@ -1,4 +1,4 @@
-XOrg
+Xorg
 sublime
 libreoffice
 savscand
