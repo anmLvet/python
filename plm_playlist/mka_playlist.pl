@@ -50,7 +50,7 @@ In update mode new files are appended to existing playlist; in replace mode file
 Requirements: gnu find, pwd. 
 
 Usage:
-	mka_playlist.pl [-a] [-nr] PLAYLIST_NAME \"FILENAMES_PATTERN\"
+	mka_playlist.pl [-a] [-nr] PLAYLIST_NAME [\"FILENAMES_PATTERN\"]
 
 Note: FILENAMES_PATTERN should be put in quotes to avoid shell expansion.
 
@@ -69,8 +69,7 @@ Options:
 $dir_op = ">";
 $dir_op = ">>" if $opt_add;
 
-$bin_dir = "~/bin";
-$pll_dir = $bin_dir . "/pll";
+$pll_dir = "~/bin/pll";
 
 my $origin_dir = dirname(__FILE__);
 if (-f "$origin_dir/plm_playlists.config")
@@ -100,5 +99,10 @@ if ($filelist) {
   system "echo \"$filelist\" $dir_op $pll_dir/$pl_name.txt";
 }
 
-print "Resulting $pl_name playlist:\n";
-system "cat $pll_dir/$pl_name.txt";
+if (-f "$pll_dir/$pl_name.txt") {
+	print "Resulting $pl_name playlist:\n";
+	system "cat $pll_dir/$pl_name.txt";
+} else {
+	print "No files found in this directory" . ($pt?" with pattern $pt":"") . ". ";
+	print "Playlist $pl_name.txt was not created\n";
+}
