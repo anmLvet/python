@@ -1,3 +1,22 @@
+#!/usr/bin/python3
+'''
+A Python class implementing KBHIT, the standard keyboard-interrupt poller.
+Works transparently on Windows and Posix (Linux, Mac OS X).  Doesn't work
+with IDLE.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+Original file was developed by Michel Blancard and can be downloaded from here:
+https://gist.github.com/michelbl/efda48b19d3e587685e3441a74457024
+This file contains minor modifications
+'''
+
 # import os
 # import re
 import sys

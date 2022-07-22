@@ -1,6 +1,7 @@
 # HotKey.pm
 package HotKey;
 
+# Hotkey.pm is taken from Perl CookBook, by Tom Christiansen published by O’Reilly Media, Inc., ISBN 0596003137
  
 use strict;
 use warnings;

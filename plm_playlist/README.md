@@ -20,6 +20,9 @@ Pomodoro cycle consist of 2 or 3 stages. To start pomodoro timer, run **258mute.
 | Rest/break | 8 minutes | `-mode 1` | `rest period`, `R` |
 | Additional stage | Optional stage, no default length | `-mode 2` | `add period`, `A` | Possible application for this stage may be if there's work to be done away from computer, which is needed to be interspersed with regular work/study. |
 
+### Installation
+
+Just copy contents of this directory to a local one. Optionally add that directory to path, and make scripts mka_playlist.pl, plm_playlist.pl and 258mute.py executable. Optionally set parameters in plm_playlist.config file.
 
 ### **mka_playlist.pl** 
 
@@ -55,10 +58,12 @@ File consists of lines, each of which has format: `PARAM_NAME PARAM_VALUE`. Inco
 
 List of parameters:
 
-| PARAM_NAME | Description                            | Default value |
+| PARAM_NAME(s) | Description                            | Default value(s) |
 | ---------- | ---------------------------------------| ------------- |
 | pll_dir    | default directory for playlists and lists of playlists (and various technical files).<br/> *mka_playlist.pl* will place and edit playlists here. However, lists of playlists are edited manually, so they may include playlist files located anywhere. <br/> *plm_playlist.pl* will use this directory for looking up lists of playlists, either specified as command argument, or a default one. | \~/.plm |
 | pll_list   | Filename of default list of playlists for *plm_playlist.pl*, used when no list specified as argument. Default list of playlists is looked up only at `$conf{'pll_dir'}/$conf{'pll_list'}` | \_list.txt |
+| bell_work, bell_rest, bell_add | Links to sound files, which would be played by pomodoro timer *258mute.py* at the start of corresponding pomodoro stage | 258_work.mp3,258_rest.mp3,258_add.mp3 |
+| bell_chime | Link to sound file to be played by *258mute.py* 30 seconds before end of rest and additional pomodoro stages | 258_chime.mp3 |
 
 
 ### **plm_playlist.pl** 
@@ -134,3 +139,55 @@ TODO: Rework whole additional options lines mechanism. At the very least, clarif
 - **q,w,a,s** keys (only when search mode is off), **F9, F10, F11, F12**. Quit script.
 - **d** key (only when search mode is off), **Cntr-D**. Switch delay_mode. Sets delay after user presses `Enter` before playback starts. Cycles through following values of delay: 0 (no delay, default), 2 minutes, 5 minutes, 10 minutes, 20 minutes.
 - **v** key (only when search mode is off), **Cntr-V**. Switch video_mode. Cycles through following modes: "no video mode enabled" (no additional changes), "no video", "force video". See comment above.
+
+### **258mute.py**
+
+Pomodoro timer, that has abitily to mute playback from **plm_playlist.pl** scripts which are run with `-mode` option.
+
+Usage:
+	`258mute.py WORK_LENGTH REST_LENGTH [ADD_LENGTH]`
+
+Requires: pacmd, pactl
+
+Arguments are lengths of pomodoro stages in seconds. Script can be run in classical 2-stage mode (work/study stage, followed by rest/break stage), if no more than 2 arguments are given. If there is a third argument, script will run in 3-stage mode, adding a third, additional stage. This can be used, for example, if there are 2 important tasks, that should be interspersed (for example, one task at the computer, and the second off the computer). 
+
+TODO. Add more customization for number and names of stages.
+
+Starting script with less then 2 arguments will set lengths for work/study and rest/break stages for their default values of 25 and 8 minutes respectively. If only one argument is given, it will set length of work/study stage.
+
+Running script starts timer immediately. Stages, their respective timers and pause information will be displayed in console. 
+
+Script accepts commands from the keyboard:
+- Pressing **s** and **d** will change length of current stage up and down 1 minute - as long as current remaining time of the stage will not become negative. This affects currently running stage, on the next iteration, stage length will be reset to value, with which it was initialized at script start.
+- **Enter** will prematurely end the stage.
+- **Space** will pause and unpause timer. When paused, the letter `P` will be added to window title. 
+- **q** stops timer and ends the script.
+
+Stage names are displayed as `Work period`, `Rest period` and `Add period` in console. They are displayed with letters `W`, `R` and `A` in window title.
+
+##### Stage progression and muting
+
+On *258mute.py* start, work/study stage is started immediately. All *plm_playlist.pl* scripts, that had option `-mode` specified with any value, different from 0, are muted. 
+
+After work/study stage rest/break stage is started. At this stage change any *plm_playlist.pl* scripts, running with option `-mode 0`, will be additionally muted, and any *plm_playlist.pl* scripts, running with option `-mode 1`, will be unmuted. The process will go on in the same way, except in 2-stage mode the next stage will be again work/study stage, and in 3-stage mode, next stage will be additional stage, and only after that will be work/study stage.
+
+All *plm_playlist.pl* scripts are unmuted if *258mute.py* exits.
+
+##### Bells and chimes
+Stage changes are indicated by playing short music fragments. In rest and additional stages additional chime is given 30 seconds before end of the stage. Bells can be configured in [**plm_playlist.config**](#plm_playlistconfig) file. 
+
+In **plm_playlist.config** parameters `bell_work`, `bell_rest`, `bell_add` specify files which should be played at start of the respective stage.
+
+`bell_chime` parameter specify sound file that shoud be played 30 seconds before stage end.
+
+All these parameter have values that are file names, that should be looked up relative to script directory. Specifying non-existent files will suppress bells playback with no errors given. 
+
+TODO: Allow for more configuration - timing chimes, that are played slightly before stage end, selecting which stages they will get. 
+
+
+### Attribution
+
+- *Hotkey.pm* is taken from Perl CookBook, by Tom Christiansen published by O’Reilly Media, Inc., ISBN 0596003137
+- *kbhit.py* is adapted from gist https://gist.github.com/michelbl/efda48b19d3e587685e3441a74457024 by 
+Michel Blancard, which is distributed under the terms of GNU Lesser General Public License as published by the Free Software Foundation
+- *258_chime.mp3* and *258_rest.mp3* are based on sound files taken from https://mixkit.co/free-sound-effects/chimes/ from Free Chimes Sound Effects by Envato Elements distributed under Mixkit License. 
