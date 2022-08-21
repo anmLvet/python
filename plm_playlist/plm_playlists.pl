@@ -23,8 +23,8 @@ $video_mode = 0; # 0 dont' change, 1 - no video, 2 - force video
 
 # Directory for playlists is taken from plm_playlists.config if exists,
 # as pll_dir parameter
-$pll_dir = "~/bin/pll";
-$default_list = "_list.txt";
+$conf{'pll_dir'} = "~/bin/pll";
+$conf{'pll_list'} = "_list.txt";
 
 my $origin_dir = dirname(__FILE__);
 if (-f "$origin_dir/plm_playlists.config")
@@ -32,17 +32,23 @@ if (-f "$origin_dir/plm_playlists.config")
 	open (CFG,"$origin_dir/plm_playlists.config");
 	while (<CFG>)
 	{
-		if (/^pll\_dir\s*(\S+)\s*$/)
-		{ $pll_dir = $1;  }
-		if (/^pll\_list\s*(\S+)\s*$/)
-		{ $default_list = $1;  }
+		if (/^(\S+)\s*(\S.*\S|\S)\s*$/)
+		{ $conf{$1} = $2;  }
 	}
 	close(CFG);
 }
-$pll_dir =~ s/~/$ENV{HOME}/;
+$conf{'pll_dir'} =~ s/~/$ENV{HOME}/;
+
+$heart_options = '';
+if ($conf{'heart_cmd'}) {
+ 	$heart_options = "-heartbeat-cmd \"$conf{'heart_cmd'}\" ";
+	if ($conf{'heart_int'}) {
+	 	$heart_options .= "-heartbeat-interval $conf{'heart_int'} ";
+	}
+}
 
 # ******0.2 Open LOG ***********
-open(LOG,">>$pll_dir/debug.log");
+open(LOG,">>$conf{'pll_dir'}/debug.log");
 LOG->autoflush(1);
 print LOG "{\n";
 print LOG "\t\"start\" : \"" . time_string() . "\",\n";
@@ -99,11 +105,11 @@ check_258($new258, $mode258);
 # ****** 0.3.2.  filelist or playlist *****
 
 if ($lst and not -f $lst) {
-	$lst = $pll_dir . "/" . $lst;
+	$lst = $conf{'pll_dir'} . "/" . $lst;
 	# body...
 }
 elsif (not $lst) {
-	$lst = $pll_dir . "/$default_list";
+	$lst = $conf{'pll_dir'} . "/$conf{'pll_list'}";
 }
 
 #$tree = TreeLeaf->new ();
@@ -255,7 +261,7 @@ sub playcurr {
 			chomp;
 			if (-f) {
 				push @fl2play;
-			} elsif (/^\s*-(aid|speed|shuffle|novideo|ss|loop|cache)/) {
+			} elsif (/^\s*-(aid|speed|shuffle|novideo|vo|ss|loop|cache)/) {
 				$play_options .= "$_ "; # $play_options contains all current options 
 				$spec_loop = 1 if ($play_options =~ /-loop/);
 			# TODO: implement balabolka mode
@@ -265,7 +271,8 @@ sub playcurr {
 		}
 		close(PP);
 		$play_options .= " -loop 0 " unless $spec_loop;
-		$play_options .= " -novideo " if (($video_mode eq "1") and not ($play_options =~ /-novideo/));
+		$play_options .= " -vo null " if (($video_mode eq "1") and not ($play_options =~ /-vo null/));
+		$play_options =~ s/-vo\s*null// if ($video_mode eq "2");
 		$play_options =~ s/-novideo// if ($video_mode eq "2");
 
 
@@ -280,15 +287,15 @@ sub playcurr {
 		#	 }
 		#	 system "mplayer -af scaletempo $play_options -fs -ass -playlist $current";
 		# } else {        	
-		debug("mplayer -af scaletempo $play_options -fs -ass -playlist $current");
-		system "mplayer -af scaletempo $play_options -fs -ass -playlist $current";
+		debug("mplayer -af scaletempo $play_options $heart_options -fs -ass -playlist $current");
+		system "mplayer -af scaletempo $play_options $heart_options -fs -ass -playlist $current";
 		# }
 		$play_options="";
 	} elsif (-d $current) {
 		# 2.obligatory mplayer plays directory - no playlist
 		chdir $current;
-		debug("dir $current; mplayer -af scaletempo $play_options -fs -ass -loop 0 *");
-		system "mplayer -af scaletempo $play_options -fs -ass -loop 0 *";
+		debug("dir $current; mplayer -af scaletempo $play_options $heart_options -fs -ass -loop 0 *");
+		system "mplayer -af scaletempo $play_options $heart_options -fs -ass -loop 0 *";
 	} 
 }
 
@@ -378,7 +385,7 @@ sub check_258 {
 		push @pid258, $current_pid;
 		push @modes258, $current_mode;
 	}
-	open (PID,"$pll_dir/period_play.pid");
+	open (PID,"$conf{'pll_dir'}/period_play.pid");
 	while (<PID>)
 	{
 		chomp;
@@ -393,7 +400,7 @@ sub check_258 {
 	}
 	close(PID);
 
-	# open (PID,">$pll_dir/258.pid");
+	# open (PID,">$conf{'pll_dir'}/258.pid");
 	# foreach $pid (0..$#pid258)
 	# {
 	# 	if ($modes258[$pid] eq "0") {
@@ -402,7 +409,7 @@ sub check_258 {
 	# }
 	# close(PID);
 
-	open (PID,">$pll_dir/period_play.pid");
+	open (PID,">$conf{'pll_dir'}/period_play.pid");
 	foreach $pid (0..$#pid258)
 	{
 		print PID "$pid258[$pid]\t$modes258[$pid]\n";

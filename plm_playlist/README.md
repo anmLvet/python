@@ -64,6 +64,8 @@ List of parameters:
 | pll_list   | Filename of default list of playlists for *plm_playlist.pl*, used when no list specified as argument. Default list of playlists is looked up only at `$conf{'pll_dir'}/$conf{'pll_list'}` | \_list.txt |
 | bell_work, bell_rest, bell_add | Links to sound files, which would be played by pomodoro timer *258mute.py* at the start of corresponding pomodoro stage | 258_work.mp3,258_rest.mp3,258_add.mp3 |
 | bell_chime | Link to sound file to be played by *258mute.py* 30 seconds before end of rest and additional pomodoro stages | 258_chime.mp3 |
+| heart_cmd  | Command for *-heartbeat-cmd* option which *plm_playlist.pl* will include in default options for each *mplayer* call. See default options [Playlist files format](#playlist-files-format) ||
+| heart_int  | Value for *-heartbeat-interval* option which *plm_playlist.pl* will include in default options for each *mplayer* call (only if *heart_cmd* parameter is provided) ||  
 
 
 ### **plm_playlist.pl** 
@@ -119,7 +121,9 @@ Playlist files can be of any regular mplayer playlist format. For one-file-per-l
 
 Format of these additional lines are simply sequence of options as they should appear in the command line. Currently, for *plm_playlist.pl* to recognize a line in playlist as additional options line, it should start with one of the following options: `-aid|-speed|-shuffle|-novideo|-ss|-loop|-cache`. If you have to pass any other option to mplayer, but not one of those, start line with `-loop 0`, this will be ignored, as such option is already in default ones.
 
-Default options that are passed to mplayer, are: `-af scaletempo -loop 0 -fs -ass`.
+Default options that are passed to mplayer, are: `-af scaletempo -loop 0 -fs -ass`. <br/>
+If `$conf{'heart_cmd'}` is specified, following options are added to default options:<br/> `-heartbeat-cmd $conf{'heart_cmd'}` <br/>
+If `$conf{'heart_int'}` is specified additionally to `$conf{'heart_cmd'}`, following options are added to default options:<br/>`-heartbeat-cmd $conf{'heart_cmd'} -heartbeat-interval $conf{'heart_int'}` 
 
 *plm_playlist.pl* does following modifications: 
 - if `-loop` option is specified in additional options, the default one is dropped and value of loops specified in additional lines is used (so while by default playlist is looping forever, number of loops can be limited by additional options).
